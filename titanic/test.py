@@ -15,7 +15,11 @@ def read_from_csv(name_queue):
     record_defaults = [[-1], [-1], [-1], [""], [""], [0.0], [0], [0], [""], [0.0], [""], [""]]
     _, survived, p_class, _, sex, age, sibs_sp, par_ch, _, _, _, _ = tf.decode_csv(csv_row, record_defaults=record_defaults)
 
-    features = tf.pack([p_class, tf.to_int32(age), sibs_sp, par_ch])
+    sex_comp = tf.equal(sex, "male")
+    sex = 0
+    tf.cond(sex_comp, lambda: tf.add(sex, tf.constant(0)), lambda: tf.add(sex, tf.constant(1)))
+
+    features = tf.pack([p_class, sex, tf.to_int32(age), sibs_sp, par_ch])
     return features, survived
 
 def input_pipeline(filenames, batch_size, num_epochs=None):
@@ -34,7 +38,9 @@ def input_pipeline(filenames, batch_size, num_epochs=None):
 train_batch_size = file_len(train_file_name, skip_header_lines=1)
 X, y = input_pipeline([train_file_name], train_batch_size, 1)
 
-with tf.Session() as sess:
+sess = tf.Session()
+
+with sess.as_default():
     tf.initialize_local_variables().run()
     tf.initialize_all_variables().run()
     coord = tf.train.Coordinator()
