@@ -38,9 +38,7 @@ def input_pipeline(filenames, batch_size, num_epochs=None):
 train_batch_size = file_len(train_file_name, skip_header_lines=1)
 X, y = input_pipeline([train_file_name], train_batch_size, 1)
 
-sess = tf.Session()
-
-with sess.as_default():
+with tf.Session() as sess:
     tf.initialize_local_variables().run()
     tf.initialize_all_variables().run()
     coord = tf.train.Coordinator()
