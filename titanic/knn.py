@@ -1,7 +1,7 @@
 import tensorflow as tf
 
-train_file_name = "train.csv"
-test_file_name = "test.csv"
+train_file_name = "train_cleaned.csv"
+test_file_name = "test_cleaned.csv"
 
 def file_len(fname, skip_header_lines = 0):
     with open(fname) as f:
