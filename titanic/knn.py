@@ -9,6 +9,17 @@ def file_len(fname, skip_header_lines = 0):
             pass
     return i + 1 - skip_header_lines
 
+def features_check(features):
+    null_features = tf.constant([-1, -1, 0, -1, -1])
+    compare_null_features = tf.add(features, tf.negative(null_features))
+
+    no_diff = tf.zeros([1, 5], tf.int32)
+    _, idx = tf.setdiff1d(compare_null_features, no_diff)
+
+    cond = tf.not_equal(idx.get_shape(), tf.TensorShape([0,0]))
+    return cond
+
+
 def read_from_csv(name_queue):
     reader = tf.TextLineReader(skip_header_lines = 1)
     _, csv_row = reader.read(name_queue)
@@ -20,6 +31,9 @@ def read_from_csv(name_queue):
     tf.cond(sex_comp, lambda: tf.add(sex, tf.constant(0)), lambda: tf.add(sex, tf.constant(1)))
 
     features = tf.pack([p_class, sex, tf.to_int32(age), sibs_sp, par_ch])
+
+    #check = features_check(features)
+
     return features, survived
 
 def input_pipeline(filenames, batch_size, num_epochs=None):
