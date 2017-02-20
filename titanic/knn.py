@@ -62,8 +62,6 @@ Xtr, Ytr = input_pipeline([train_file_name], train_batch_size, train_data=True, 
 test_batch_size = file_len(test_file_name, skip_header_lines=1)
 Xte = input_pipeline([test_file_name], test_batch_size, train_data=False, num_epochs=1)
 
-Xtr_print = tf.Print(Xtr, [Xtr])
-
 with tf.Session() as sess:
     tf.local_variables_initializer().run()
     tf.global_variables_initializer().run()
