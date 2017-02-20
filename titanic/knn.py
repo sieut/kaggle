@@ -12,8 +12,8 @@ def file_len(fname, skip_header_lines = 0):
 def read_from_csv(name_queue):
     reader = tf.TextLineReader(skip_header_lines = 1)
     _, csv_row = reader.read(name_queue)
-    record_defaults = [[-1], [-1], [-1], [""], [""], [0.0], [0], [0], [""], [0.0], [""], [""]]
-    _, survived, p_class, _, sex, age, sibs_sp, par_ch, _, _, _, _ = tf.decode_csv(csv_row, record_defaults=record_defaults)
+    record_defaults = [[0], [-1], [-1], [-1], [""], [""], [0.0], [0], [0], [""], [0.0], [""], [""]]
+    _, _, survived, p_class, _, sex, age, sibs_sp, par_ch, _, _, _, _ = tf.decode_csv(csv_row, record_defaults=record_defaults)
 
     sex_comp = tf.equal(sex, "male")
     sex = 0
