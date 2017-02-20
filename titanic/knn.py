@@ -72,7 +72,7 @@ with tf.Session() as sess:
 
     while True:
         try:
-            Xtr_to_print, Ytr_to_print = sess.run([Xtr, Ytr])
-            print (Xtr_to_print, Ytr_to_print)
+            sess.run([Xtr, Ytr])
+            sess.run([Xte])
         except tf.errors.OutOfRangeError:
             break
