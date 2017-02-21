@@ -87,5 +87,5 @@ with tf.Session() as sess:
             break
 
         for i in range(len(Xte_list[0])):
-            knn_idx = sess.run(min_idx, feed_dict={xtr:Xtr_list, xte:Xte_list[0][0]})
+            knn_idx = sess.run(min_idx, feed_dict={xtr:Xtr_list, xte:Xte_list[0][i]})
             print Ytr_list[knn_idx]
