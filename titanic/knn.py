@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 
 train_file_name = "train_cleaned.csv"
 test_file_name = "test_cleaned.csv"
@@ -62,6 +63,12 @@ Xtr, Ytr = input_pipeline([train_file_name], train_batch_size, train_data=True, 
 test_batch_size = file_len(test_file_name, skip_header_lines=1)
 Xte = input_pipeline([test_file_name], test_batch_size, train_data=False, num_epochs=1)
 
+#kNN
+xte = tf.placeholder(tf.float32, [5])
+xtr = tf.placeholder(tf.float32, [None, 5])
+distance = tf.sqrt(tf.reduce_sum(tf.square(tf.subtract(xtr, xte)), reduction_indices=1))
+min_idx = tf.arg_min(distance, 0)
+
 with tf.Session() as sess:
     tf.local_variables_initializer().run()
     tf.global_variables_initializer().run()
@@ -69,8 +76,16 @@ with tf.Session() as sess:
     threads = tf.train.start_queue_runners(coord=coord)
 
     while True:
+        Xtr_list = None
+        Ytr_list = None
+        Xte_list = None
+
         try:
-            sess.run([Xtr, Ytr])
-            sess.run([Xte])
+            Xtr_list, Ytr_list = sess.run([Xtr, Ytr])
+            Xte_list = sess.run([Xte])
         except tf.errors.OutOfRangeError:
             break
+
+        for i in range(len(Xte_list[0])):
+            knn_idx = sess.run(min_idx, feed_dict={xtr:Xtr_list, xte:Xte_list[0][0]})
+            print Ytr_list[knn_idx]
