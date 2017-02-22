@@ -28,8 +28,8 @@ def read_train_data(name_queue):
 def read_test_data(name_queue):
     reader = tf.TextLineReader(skip_header_lines = 1)
     _, csv_row = reader.read(name_queue)
-    record_defaults = [[0.0], [-1.0], [-1.0], [""], [""], [0.0], [0.0], [0.0], [""], [0.0], [""], [""]]
-    p_id, _, p_class, _, sex, age, sibs_sp, par_ch, _, _, _, _ = tf.decode_csv(csv_row, record_defaults=record_defaults)
+    record_defaults = [[0], [0], [-1.0], [""], [""], [0.0], [0.0], [0.0], [""], [0.0], [""], [""]]
+    _, p_id, p_class, _, sex, age, sibs_sp, par_ch, _, _, _, _ = tf.decode_csv(csv_row, record_defaults=record_defaults)
 
     sex_comp = tf.equal(sex, "male")
     sex = 0.0
@@ -136,6 +136,7 @@ def test_data():
                 pred_list.append(sess.run(pred, feed_dict={knn_survived: Ytr_list[knn_idx]}))
 
             df = pd.DataFrame({"PassengerId": Xte_id_list, "Survived": pred_list})
+            df.set_index("PassengerId", inplace=True)
             df.to_csv("prediction.csv")
 
 test_data()
