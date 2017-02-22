@@ -28,7 +28,7 @@ def read_test_data(name_queue):
     reader = tf.TextLineReader(skip_header_lines = 1)
     _, csv_row = reader.read(name_queue)
     record_defaults = [[0.0], [-1.0], [-1.0], [""], [""], [0.0], [0.0], [0.0], [""], [0.0], [""], [""]]
-    _, _, p_class, _, sex, age, sibs_sp, par_ch, _, _, _, _ = tf.decode_csv(csv_row, record_defaults=record_defaults)
+    p_id, _, p_class, _, sex, age, sibs_sp, par_ch, _, _, _, _ = tf.decode_csv(csv_row, record_defaults=record_defaults)
 
     sex_comp = tf.equal(sex, "male")
     sex = 0.0
@@ -36,7 +36,7 @@ def read_test_data(name_queue):
 
     features = tf.stack([p_class, sex, age, sibs_sp, par_ch])
 
-    return features
+    return features, p_id
 
 def input_pipeline(filenames, batch_size, train_data, num_epochs=None):
     filename_queue = tf.train.string_input_producer(
@@ -50,10 +50,10 @@ def input_pipeline(filenames, batch_size, train_data, num_epochs=None):
         	[features, survived], batch_size=batch_size, capacity=capacity)
         return features_batch, label_batch
     else:
-        features = read_test_data(filename_queue)
-        features_batch = tf.train.batch(
-            [features], batch_size=batch_size, capacity=capacity)
-        return features_batch
+        features, p_id = read_test_data(filename_queue)
+        features_batch, id_batch = tf.train.batch(
+            [features, p_id], batch_size=batch_size, capacity=capacity)
+        return features_batch, id_batch
 
 #Loading train data
 train_batch_size = file_len(train_file_name, skip_header_lines=1)
@@ -61,7 +61,7 @@ Xtr, Ytr = input_pipeline([train_file_name], train_batch_size, train_data=True, 
 
 #Loading test data
 test_batch_size = file_len(test_file_name, skip_header_lines=1)
-Xte = input_pipeline([test_file_name], test_batch_size, train_data=False, num_epochs=1)
+Xte, Xte_id = input_pipeline([test_file_name], test_batch_size, train_data=False, num_epochs=1)
 
 #kNN
 xte = tf.placeholder(tf.float32, [5])
@@ -121,15 +121,16 @@ def test_data():
             Xtr_list = None
             Ytr_list = None
             Xte_list = None
+            Xte_id_list = None
 
             try:
                 Xtr_list, Ytr_list = sess.run([Xtr, Ytr])
-                Xte_list = sess.run([Xte])
+                Xte_list, Xte_id_list = sess.run([Xte, Xte_id])
             except tf.errors.OutOfRangeError:
                 break
 
-            for i in range(len(Xte_list[0])):
-                knn_idx = sess.run(min_dist_idx, feed_dict={xtr:Xtr_list, xte:Xte_list[0][i], k: 3})
+            for i in range(len(Xte_list)):
+                knn_idx = sess.run(min_dist_idx, feed_dict={xtr:Xtr_list, xte:Xte_list[i], k: 5})
                 print sess.run(pred, feed_dict={knn_survived: Ytr_list[knn_idx]})
 
-train_best_k()
+test_data()
