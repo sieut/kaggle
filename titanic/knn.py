@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import pandas as pd
 
 train_file_name = "train_cleaned.csv"
 test_file_name = "test_cleaned.csv"
@@ -13,7 +14,7 @@ def file_len(fname, skip_header_lines = 0):
 def read_train_data(name_queue):
     reader = tf.TextLineReader(skip_header_lines = 1)
     _, csv_row = reader.read(name_queue)
-    record_defaults = [[0.0], [-1.0], [-1.0], [-1.0], [""], [""], [0.0], [0.0], [0.0], [""], [0.0], [""], [""]]
+    record_defaults = [[0], [-1.0], [-1.0], [-1.0], [""], [""], [0.0], [0.0], [0.0], [""], [0.0], [""], [""]]
     _, _, survived, p_class, _, sex, age, sibs_sp, par_ch, _, _, _, _ = tf.decode_csv(csv_row, record_defaults=record_defaults)
 
     sex_comp = tf.equal(sex, "male")
@@ -72,7 +73,7 @@ inverse_distance = tf.divide(tf.constant(1.0), distance)
 _, min_dist_idx = tf.nn.top_k(inverse_distance, k)
 
 knn_survived = tf.placeholder(tf.float32, [None])
-pred = tf.round(tf.reduce_mean(knn_survived))
+pred = tf.to_int32(tf.round(tf.reduce_mean(knn_survived)))
 
 def train_best_k():
     with tf.Session() as sess:
@@ -129,8 +130,12 @@ def test_data():
             except tf.errors.OutOfRangeError:
                 break
 
+            pred_list = []
             for i in range(len(Xte_list)):
                 knn_idx = sess.run(min_dist_idx, feed_dict={xtr:Xtr_list, xte:Xte_list[i], k: 5})
-                print sess.run(pred, feed_dict={knn_survived: Ytr_list[knn_idx]})
+                pred_list.append(sess.run(pred, feed_dict={knn_survived: Ytr_list[knn_idx]}))
+
+            df = pd.DataFrame({"PassengerId": Xte_id_list, "Survived": pred_list})
+            df.to_csv("prediction.csv")
 
 test_data()
