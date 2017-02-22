@@ -66,8 +66,13 @@ Xte = input_pipeline([test_file_name], test_batch_size, train_data=False, num_ep
 #kNN
 xte = tf.placeholder(tf.float32, [5])
 xtr = tf.placeholder(tf.float32, [None, 5])
+k = tf.placeholder(tf.int32, shape=())
 distance = tf.sqrt(tf.reduce_sum(tf.square(tf.subtract(xtr, xte)), reduction_indices=1))
-min_idx = tf.arg_min(distance, 0)
+inverse_distance = tf.divide(tf.constant(1.0), distance)
+_, min_dist_idx = tf.nn.top_k(inverse_distance, k)
+
+knn_survived = tf.placeholder(tf.float32, [None])
+pred = tf.round(tf.reduce_mean(knn_survived))
 
 with tf.Session() as sess:
     tf.local_variables_initializer().run()
@@ -87,5 +92,5 @@ with tf.Session() as sess:
             break
 
         for i in range(len(Xte_list[0])):
-            knn_idx = sess.run(min_idx, feed_dict={xtr:Xtr_list, xte:Xte_list[0][i]})
-            print Ytr_list[knn_idx]
+            knn_idx = sess.run(min_dist_idx, feed_dict={xtr:Xtr_list, xte:Xte_list[0][i], k: 3})
+            print sess.run(pred, feed_dict={knn_survived: Ytr_list[knn_idx]})
