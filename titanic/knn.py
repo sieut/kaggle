@@ -74,23 +74,62 @@ _, min_dist_idx = tf.nn.top_k(inverse_distance, k)
 knn_survived = tf.placeholder(tf.float32, [None])
 pred = tf.round(tf.reduce_mean(knn_survived))
 
-with tf.Session() as sess:
-    tf.local_variables_initializer().run()
-    tf.global_variables_initializer().run()
-    coord = tf.train.Coordinator()
-    threads = tf.train.start_queue_runners(coord=coord)
+def train_best_k():
+    with tf.Session() as sess:
+        tf.local_variables_initializer().run()
+        tf.global_variables_initializer().run()
+        coord = tf.train.Coordinator()
+        threads = tf.train.start_queue_runners(coord=coord)
 
-    while True:
-        Xtr_list = None
-        Ytr_list = None
-        Xte_list = None
+        while True:
+            Xtr_list = None
+            Ytr_list = None
+            Xte_list = None
 
-        try:
-            Xtr_list, Ytr_list = sess.run([Xtr, Ytr])
-            Xte_list = sess.run([Xte])
-        except tf.errors.OutOfRangeError:
-            break
+            try:
+                Xtr_list, Ytr_list = sess.run([Xtr, Ytr])
+                Xte_list = sess.run([Xte])
+            except tf.errors.OutOfRangeError:
+                break
 
-        for i in range(len(Xte_list[0])):
-            knn_idx = sess.run(min_dist_idx, feed_dict={xtr:Xtr_list, xte:Xte_list[0][i], k: 3})
-            print sess.run(pred, feed_dict={knn_survived: Ytr_list[knn_idx]})
+            accuracy = []
+            for k_te in range(1,11):
+                current_accuracy = 0
+                for i in range(len(Xtr_list)):
+                    x_te = Xtr_list[i]
+                    knn_idx = sess.run(min_dist_idx, feed_dict={xtr:Xtr_list, xte:x_te, k: k_te + 1})
+                    if knn_idx[0] != i:
+                        knn_idx = knn_idx[:-1]
+                    else:
+                        knn_idx = knn_idx[1:]
+                    surv = sess.run(pred, feed_dict={knn_survived: Ytr_list[knn_idx]})
+                    if int(surv) - Ytr_list[i] == 0:
+                        current_accuracy = current_accuracy + 1
+
+                accuracy.append(float(current_accuracy) / float(len(Xtr_list)))
+
+            print accuracy
+
+def test_data():
+    with tf.Session() as sess:
+        tf.local_variables_initializer().run()
+        tf.global_variables_initializer().run()
+        coord = tf.train.Coordinator()
+        threads = tf.train.start_queue_runners(coord=coord)
+
+        while True:
+            Xtr_list = None
+            Ytr_list = None
+            Xte_list = None
+
+            try:
+                Xtr_list, Ytr_list = sess.run([Xtr, Ytr])
+                Xte_list = sess.run([Xte])
+            except tf.errors.OutOfRangeError:
+                break
+
+            for i in range(len(Xte_list[0])):
+                knn_idx = sess.run(min_dist_idx, feed_dict={xtr:Xtr_list, xte:Xte_list[0][i], k: 3})
+                print sess.run(pred, feed_dict={knn_survived: Ytr_list[knn_idx]})
+
+train_best_k()
