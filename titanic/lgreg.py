@@ -48,4 +48,10 @@ with tf.Session() as sess:
 
 		sess.run(train_step, feed_dict={xtr: Xtr_list, ytr: _y})
 
-	print sess.run(acc, feed_dict={xtr: Xtr_list, ytr: _y})
+	#print sess.run(acc, feed_dict={xtr: Xtr_list, ytr: _y})
+
+	pred = sess.run(h, feed_dict={xtr: Xte_list})
+	pred_list = [np.argmax(x) for x in pred]
+	df = pd.DataFrame({"PassengerId": Xte_id_list, "Survived": pred_list})
+	df.set_index("PassengerId", inplace=True)
+	df.to_csv("prediction.csv")
