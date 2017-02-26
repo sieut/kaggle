@@ -3,6 +3,12 @@ import numpy as np
 import pandas as pd
 import load_data as data
 
+Xtr, Ytr = data.input_pipeline([data.train_file_name], data.train_batch_size,
+								train_data=True, num_epochs=10)
+Xte, Xte_id = data.input_pipeline([data.test_file_name], data.test_batch_size,
+								train_data=False, num_epochs=10)
+
+
 # Logistic Regression
 xtr = tf.placeholder(tf.float32, [None, 5])
 ytr = tf.placeholder(tf.float32, [None, 1])
