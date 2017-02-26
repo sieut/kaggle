@@ -13,13 +13,13 @@ def read_train_data(name_queue):
     reader = tf.TextLineReader(skip_header_lines = 1)
     _, csv_row = reader.read(name_queue)
     record_defaults = [[0], [-1.0], [-1.0], [-1.0], [""], [""], [0.0], [0.0], [0.0], [""], [0.0], [""], [""]]
-    _, _, survived, p_class, _, sex, age, sibs_sp, par_ch, _, _, _, _ = tf.decode_csv(csv_row, record_defaults=record_defaults)
+    _, _, survived, p_class, _, sex, age, sibs_sp, par_ch, _, fare, _, _ = tf.decode_csv(csv_row, record_defaults=record_defaults)
 
     sex_comp = tf.equal(sex, "male")
     sex = 0.0
     tf.cond(sex_comp, lambda: tf.add(sex, tf.constant(0.0)), lambda: tf.add(sex, tf.constant(1.0)))
 
-    features = tf.stack([p_class, sex, age, sibs_sp, par_ch])
+    features = tf.stack([p_class, sex, age, sibs_sp, par_ch, fare])
 
     return features, survived
 
@@ -27,13 +27,13 @@ def read_test_data(name_queue):
     reader = tf.TextLineReader(skip_header_lines = 1)
     _, csv_row = reader.read(name_queue)
     record_defaults = [[0], [0], [-1.0], [""], [""], [0.0], [0.0], [0.0], [""], [0.0], [""], [""]]
-    _, p_id, p_class, _, sex, age, sibs_sp, par_ch, _, _, _, _ = tf.decode_csv(csv_row, record_defaults=record_defaults)
+    _, p_id, p_class, _, sex, age, sibs_sp, par_ch, _, fare, _, _ = tf.decode_csv(csv_row, record_defaults=record_defaults)
 
     sex_comp = tf.equal(sex, "male")
     sex = 0.0
     tf.cond(sex_comp, lambda: tf.add(sex, tf.constant(0.0)), lambda: tf.add(sex, tf.constant(1.0)))
 
-    features = tf.stack([p_class, sex, age, sibs_sp, par_ch])
+    features = tf.stack([p_class, sex, age, sibs_sp, par_ch, fare])
 
     return features, p_id
 
