@@ -10,12 +10,16 @@ Xte, Xte_id = data.input_pipeline([data.test_file_name], data.test_batch_size,
 
 
 # Logistic Regression
-xtr = tf.placeholder(tf.float32, [None, 5])
-ytr = tf.placeholder(tf.float32, [None, 1])
-w = tf.placeholder(tf.float32, [5])
+xtr = tf.placeholder(tf.float32, [714, 5])
+ytr = tf.placeholder(tf.float32, [714])
+w = tf.Variable([1.0, 1.0, 1.0, 1.0, 1.0])
 
 z = tf.reduce_sum(tf.multiply(xtr, w), reduction_indices=1)
-g = tf.divide(tf.constant(1.0), tf.constant(1.0) + tf.exp(tf.negative(z)))
+h = tf.divide(tf.constant(1.0), tf.constant(1.0) + tf.exp(tf.negative(z)))
+loss = tf.reduce_mean(tf.add(tf.multiply(tf.negative(ytr), tf.log1p(h)),
+				tf.negative(tf.multiply(tf.add(tf.constant(1.0), tf.negative(ytr)), tf.log1p(tf.add(tf.constant(1.0), h))))))
+
+train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss, var_list=[w])
 
 with tf.Session() as sess:
 	tf.local_variables_initializer().run()
@@ -30,10 +34,8 @@ with tf.Session() as sess:
 		Xte_id_list = None
 
 		try:
-			Xtr_list, Ytr_list = sess.run([data.Xtr, data.Ytr])
-			Xte_list, Xte_id_list = sess.run([data.Xte, data.Xte_id])
+			Xtr_list, Ytr_list = sess.run([Xtr, Ytr])
+			Xte_list, Xte_id_list = sess.run([Xte, Xte_id])
 		except tf.errors.OutOfRangeError:
 			break
-
-		w_tr = [1, 1, 1, 1, 1]
-		print sess.run(g, feed_dict={xtr: Xtr_list, w: w_tr})
+		print sess.run(train_step, feed_dict={xtr: Xtr_list, ytr: Ytr_list})
