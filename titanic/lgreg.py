@@ -9,9 +9,9 @@ Xte, Xte_id = data.input_pipeline([data.test_file_name], data.test_batch_size,
 								train_data=False, num_epochs=25)
 
 # Logistic Regression
-xtr = tf.placeholder(tf.float32, [None, 5])
+xtr = tf.placeholder(tf.float32, [None, 6])
 ytr = tf.placeholder(tf.float32, [None, 2])
-w = tf.Variable(tf.zeros([5, 2]))
+w = tf.Variable(tf.zeros([6, 2]))
 b = tf.Variable(tf.zeros([2]))
 
 h = tf.nn.softmax(tf.matmul(xtr, w) + b)
