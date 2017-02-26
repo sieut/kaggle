@@ -46,13 +46,6 @@ with tf.Session() as sess:
 			val = Ytr_list[i]
 			_y.append([val, 1 - val])
 
-		# preds = sess.run(h, feed_dict={xtr: Xtr_list, ytr: _y})
-		# acc = 0
-		# for i in range(len(Xtr_list)):
-		# 	if round(max(preds[i])) == Ytr_list[i]:
-		# 		acc = acc + 1
-		# print acc
-
 		sess.run(train_step, feed_dict={xtr: Xtr_list, ytr: _y})
 
 	print sess.run(acc, feed_dict={xtr: Xtr_list, ytr: _y})

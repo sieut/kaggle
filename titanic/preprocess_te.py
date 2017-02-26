@@ -18,5 +18,6 @@ df.Age = (df.Age - df.Age.min()) / (df.Age.max() - df.Age.min())
 df.SibSp = (df.SibSp - df.SibSp.min()) / (df.SibSp.max() - df.SibSp.min())
 df.Parch = (df.Parch - df.Parch.min()) / (df.Parch.max() - df.Parch.min())
 df.Pclass = (df.Pclass - df.Pclass.min()) / (df.Pclass.max() - df.Pclass.min())
+df.Fare = (df.Fare - df.Fare.min()) / (df.Fare.max() - df.Fare.min())
 
 df.to_csv("test_cleaned.csv")
