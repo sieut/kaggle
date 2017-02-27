@@ -17,7 +17,7 @@ b = tf.Variable(tf.zeros([2]))
 h = tf.nn.softmax(tf.matmul(xtr, w) + b)
 
 loss = tf.reduce_mean(-tf.reduce_sum(ytr * tf.log(h), reduction_indices=1))
-train_step = tf.train.GradientDescentOptimizer(0.1).minimize(loss)
+train_step = tf.train.GradientDescentOptimizer(0.5).minimize(loss)
 
 correct_pred = tf.equal(tf.argmax(h, 1), tf.argmax(ytr, 1))
 acc = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
@@ -48,7 +48,7 @@ with tf.Session() as sess:
 
 		sess.run(train_step, feed_dict={xtr: Xtr_list, ytr: _y})
 
-	#print sess.run(acc, feed_dict={xtr: Xtr_list, ytr: _y})
+	print sess.run(acc, feed_dict={xtr: Xtr_list, ytr: _y})
 
 	pred = sess.run(h, feed_dict={xtr: Xte_list})
 	pred_list = [np.argmax(x) for x in pred]
