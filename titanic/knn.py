@@ -3,8 +3,8 @@ import pandas as pd
 import load_data as data
 
 #kNN
-xte = tf.placeholder(tf.float32, [6])
-xtr = tf.placeholder(tf.float32, [None, 6])
+xte = tf.placeholder(tf.float32, [7])
+xtr = tf.placeholder(tf.float32, [None, 7])
 k = tf.placeholder(tf.int32, shape=())
 distance = tf.sqrt(tf.reduce_sum(tf.square(tf.subtract(xtr, xte)), reduction_indices=1))
 inverse_distance = tf.divide(tf.constant(1.0), distance)
