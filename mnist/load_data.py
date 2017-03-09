@@ -5,10 +5,10 @@ test_file_name = "test.csv"
 
 def read_tr():
 	df = pd.read_csv(train_file_name)
-	labels = df['label']
+	labels = df['label'].tolist()
 	pixels = []
 
 	for i in range(len(df)):
-		pixels.append(df.loc[i].drop('label'))
+		pixels.append(df.loc[i].drop('label').tolist())
 
 	return pixels, labels
